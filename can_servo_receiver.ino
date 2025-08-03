@@ -22,14 +22,29 @@ void setup () {
   }
 }
 
-void loop () {
+void moveServoSmoothly(int targetAngle) {
+  if (targetAngle < 0) targetAngle = 0;
+  if (targetAngle > 180) targetAngle = 180;
+
+  if (targetAngle == currentAngle) return;
+
+  int step = (targetAngle > currentAngle) ? 1 : -1;
+  for (int angle = currentAngle; angle != targetAngle; angle += step) {
+    roboticArmServo.write(angle);
+    delay(10); // Adjust for smoother/faster movement
+  }
+  roboticArmServo.write(targetAngle); // Final adjustment
+  currentAngle = targetAngle;
+}
+
+void loop() {
   CANMessage msg;
   if (ACAN_ESP32::can.receive(msg)) {
     if (msg.id == roboticArmCANID && msg.len == 1) {
-      uint8_t angle = msg.data[0];
+      uint8_t targetAngle = msg.data[0];
       Serial.print("Received angle: ");
-      Serial.println(angle);
-      roboticArmServo.write(angle);
+      Serial.println(targetAngle);
+      moveServoSmoothly(targetAngle);
     }
   }
 }
