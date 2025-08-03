@@ -15,6 +15,3 @@ The receiver listens for CAN messages containing a single byte (0–180) represe
 
 ## ID
 roboticArmCANID = 0x100
-
-## License
-MIT
